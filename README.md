@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ## Getting Started
 
-#### Notebook 1: Design and evaluation of a recommendation algorithm [[Colab link]]()
+#### Notebook 1: Design and evaluation of a recommendation algorithm [[Colab link]](https://colab.research.google.com/github/biasinrecsys/icdm2020/blob/master/notebooks/model_setup.ipynb)
 In this notebook, we become familiar with the Python recommendation toolbox, in the simplest 
 possible way. First, we setup the working environment in GDrive. Then, we go through the 
 experimental pipeline, by:
