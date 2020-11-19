@@ -12,6 +12,6 @@ class MostPop(Model):
 
     def predict(self):
         self.predicted_relevance = np.zeros((self.no_users, self.no_items))
+        print('Computing predictions')
         for user_id in self.users:
-            print('\rComputing predictions for user', user_id, '/', self.no_users, end='')
             self.predicted_relevance[user_id] = self.item_popularity / np.sum(self.item_popularity)

@@ -11,6 +11,7 @@ from helpers.utils import save_obj, get_bpr_loss
 class Model:
 
     def __init__(self, users, items, observed_relevance, unobserved_relevance, category_per_item, item_field, user_field, rating_field):
+
         print('Initializing user, item, and categories lists')
         self.name = 'Unknown'
         self.users = users
@@ -20,16 +21,21 @@ class Model:
         self.no_items = len(items)
         self.no_categories = len(self.categories)
         self.no_interactions = len(observed_relevance.index)
+
         print('Initializing observed, unobserved, and predicted relevance scores')
         self.observed_relevance = self.__get_feedback(observed_relevance, item_field, user_field, rating_field)
         self.unobserved_relevance = self.__get_feedback(unobserved_relevance, item_field, user_field, rating_field)
         self.predicted_relevance = None
+
         print('Initializing item popularity lists')
         self.item_popularity = np.array([len(observed_relevance[observed_relevance[item_field]==item_id].index) for item_id in items])
+
         print('Initializing category per item')
         self.category_per_item = category_per_item
+
         print('Initializing category preference per user')
         self.categories_per_user = self.__get_representation()
+
         print('Initializing metrics')
         self.metrics = None
 
@@ -116,6 +122,7 @@ class Model:
                     if item_group is not None:
                         self.metrics['exposure'][index_k, user_id] /= np.sum([1/math.log(pos+1+1) for pos in range(k)])
                         self.metrics['visibility'][index_k, user_id] /= k
+        print('\rComputing metrics for user', user_id+1, '/', self.no_users)
 
     def show_metrics(self, index_k=0):
         precision = round(np.mean([v for v in self.metrics['precision'][index_k, :self.no_users]]), 4)

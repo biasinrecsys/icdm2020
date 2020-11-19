@@ -64,9 +64,7 @@ class PairWise(Model):
                 auc_scores = []
                 for t, (u, i, j) in enumerate(zip(user_input_val, item_i_input_val, item_j_input_val)):
                     auc_scores.append(1 if np.dot(user_matrix[u], item_matrix[i]) > np.dot(user_matrix[u], item_matrix[j]) else 0)
-                    if (t % 1000) == 0:
-                        print('\rValidation accuracy:', auc_scores.count(1) / len(auc_scores), '(Sample', t, 'of', str(len(val_instance_indexes)) + ')', end='')
-                print()
+                print('Validation accuracy:', auc_scores.count(1) / len(auc_scores), '(Sample', t, 'of', str(len(val_instance_indexes)) + ')')
                 if (auc_scores.count(1) / len(auc_scores)) < best_auc_score:
                     break
                 else:
@@ -77,9 +75,8 @@ class PairWise(Model):
         item_pids = np.arange(self.no_items, dtype=np.int32)
         user_matrix = self.model.get_layer('UserEmb').get_weights()[0]
         item_matrix = self.model.get_layer('ItemEmb').get_weights()[0]
+        print('Computing predictions')
         for user_id in range(self.no_users):
-            if (user_id % 1000) == 0:
-               print('\rComputing predictions for user', user_id, '/', self.no_users, end='')
             user_vector = user_matrix[user_id]
             item_vectors = item_matrix[item_pids]
             self.predicted_relevance[user_id] = np.array(np.dot(user_vector, item_vectors.T))

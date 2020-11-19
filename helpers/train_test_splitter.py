@@ -66,26 +66,27 @@ def fixed_timestamp(interactions, min_train=4, min_test=1, min_time=None, max_ti
 def user_timestamp(interactions, split=0.80, min_samples=10, user_field='user_id', item_field='item_id', time_field='timestamp'):
     train_set = []
     test_set = []
-    groups = interactions.groupby([user_field])
 
+    groups = interactions.groupby([user_field])
     for i, (index, group) in enumerate(groups):
+
         if i % 1000 == 0:
-            print('\r> Parsing user', i, 'of', len(groups), end='')
+            print('\r> Parsing user', i+1, 'of', len(groups), end='')
+
         if len(group.index) < min_samples:
             continue
+
         sorted_group = group.sort_values(time_field)
         n_rating_test = int(len(sorted_group.index) * (1.0 - split))
         train_set.append(sorted_group.head(len(sorted_group.index) - n_rating_test))
         test_set.append(sorted_group.tail(n_rating_test))
-    print()
+
+    print('\r> Parsing user', i+1, 'of', len(groups))
 
     train, test = pd.concat(train_set), pd.concat(test_set)
-
-    train['set'] = 'train'
-    test['set'] = 'test'
+    train['set'], test['set'] = 'train', 'test'  # Ensure that each row has a column that identifies the associated set
 
     traintest = pd.concat([train, test])
-
     traintest[user_field + '_original'] = traintest[user_field]
     traintest[item_field + '_original'] = traintest[item_field]
     traintest[user_field] = traintest[user_field].astype('category').cat.codes

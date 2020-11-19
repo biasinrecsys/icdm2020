@@ -18,7 +18,7 @@ def generator(observed_relevance, categories, no_categories, category_per_item, 
         negative_set_list[user_id] = list(set(range(no_items)) - set(positive_set_list[int(user_id)]))
 
     for index, (user_id, item_id) in enumerate(zip(users, items)):
-        if (index % 10000) == 0:
+        if (index % 100000) == 0:
             print('\rComputing instances for interaction', index, '/', len(users), 'of type', gen_mode, end='')
 
         if gen_mode == 'point':
