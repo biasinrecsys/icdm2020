@@ -5,10 +5,10 @@ import tensorflow as tf
 import numpy as np
 import os
 
-from helpers.instances_creator import generator
+from helpers.instances_creator import generator, balanced_generator
 from helpers.utils import load_obj, save_obj
 from models.model import Model
-from helpers.utils import get_bpr_loss, get_dot_difference, get_dot_difference_shape
+from helpers.utils import get_bpr_loss, get_dot_difference, get_dot_difference_shape, get_correlation_loss
 
 class PairWise(Model):
 
@@ -28,18 +28,21 @@ class PairWise(Model):
         j_item_input = tf.keras.layers.Input(shape=[1], name='NegItemInput')
         neg_item_vec = tf.keras.layers.Flatten(name='FlatNegItemEmb')(item_embedding(j_item_input))
 
-        dot_difference = tf.keras.layers.Lambda(get_dot_difference, output_shape=get_dot_difference_shape, name='Accuracy')([user_vec, pos_item_vec, neg_item_vec])
+        dot_difference = tf.keras.layers.Lambda(get_dot_difference, output_shape=get_dot_difference_shape, name='acc')([user_vec, pos_item_vec, neg_item_vec])
+        dot_other_dot_difference = tf.keras.layers.Lambda(get_dot_difference, output_shape=get_dot_difference_shape, name='corr')([user_vec, pos_item_vec, neg_item_vec])
 
-        return tf.keras.Model(inputs=[user_input, i_item_input, j_item_input], outputs=[dot_difference])
+        return tf.keras.Model(inputs=[user_input, i_item_input, j_item_input], outputs=[dot_difference, dot_other_dot_difference])
 
-    def train(self, no_epochs=100, batches=1024, lr=0.001, no_factors=10, no_negatives=10, gen_mode='pair', val_split=0.01, val_interval=4):
+    def train(self, rweight=0.0, no_epochs=100, batches=1024, lr=0.001, no_factors=10, no_negatives=10, gen_mode='pair', val_split=0.01, val_interval=4):
 
         print('Generating training instances', 'of type', gen_mode)
-        x, y = generator(self.observed_relevance, self.categories, self.no_categories, self.category_per_item, self.categories_per_user, no_negatives=no_negatives, gen_mode=gen_mode)
+
+        print('Created training instances randomly')
+        x, y = generator(self.observed_relevance, self.categories, self.no_categories, self.category_per_item, self.categories_per_user, no_negatives=no_negatives, gen_mode=gen_mode, item_popularity=self.item_popularity)
 
         print('Performing training -', 'Epochs', no_epochs, 'Batch Size', batches, 'Learning Rate', lr, 'Factors', no_factors, 'Negatives', no_negatives, 'Mode', gen_mode)
         self.model = self.__get_model()
-        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=lr), loss=get_bpr_loss)
+        self.model.compile(optimizer=tf.keras.optimizers.Adam(lr=lr), loss=[get_bpr_loss, get_correlation_loss], loss_weights=[1-rweight, rweight])
 
         user_input, item_i_input, item_j_input = x
         labels = y
@@ -56,7 +59,7 @@ class PairWise(Model):
 
         best_auc_score = 0
         for epoch in range(no_epochs):
-            self.model.fit([user_input_train, item_i_input_train, item_j_input_train], labels_train, initial_epoch=epoch, epochs=epoch+1, batch_size=batches, verbose=1, shuffle=True)
+            self.model.fit([user_input_train, item_i_input_train, item_j_input_train], [labels_train, labels_train], initial_epoch=epoch, epochs=epoch+1, batch_size=batches, verbose=1, shuffle=True)
 
             if (epoch % val_interval) == 0:
                 user_matrix = self.model.get_layer('UserEmb').get_weights()[0]
