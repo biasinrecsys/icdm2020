@@ -46,14 +46,14 @@ The trained models, together with the partial computation we will save (e.g., us
 matrix or metrics), will be the starting point of the investigation and the treatment covered by 
 the other Jupyter notebooks.
 
-#### Notebook 2: Investigation on item popularity bias [[Colab link available on Nov 20, 2020]]()
+#### Notebook 2: Investigation on item popularity bias [[Colab link]](https://colab.research.google.com/github/biasinrecsys/icdm2020/blob/master/notebooks/item_popularity_bias.ipynb)
 
 This notebook will outline a short study of item popularity in recommender systems. We assume 
 that the number of ratings is a proxy of the popularity of the item. First, we will compare 
 the characteristics of the items recommended by pairwise, pointwise, random and mostpop strategies.
 Then, we will show how to setup and perform a post-processing mitigation approach against popularity. 
 
-#### Notebook 3: Investigation on item provider fairness [[Colab link available on Nov 20, 2020]]()
+#### Notebook 3: Investigation on item provider fairness [[Colab link]](https://colab.research.google.com/github/biasinrecsys/icdm2020/blob/master/notebooks/item_provider_fairness.ipynb)
 
 This notebook will consider the directors of movies in Movielens 1M as the item providers and 
 investigates how unfairness based on gender groups affects providers' group visibility and 

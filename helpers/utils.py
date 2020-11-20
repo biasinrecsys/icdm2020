@@ -48,3 +48,15 @@ def get_dot_difference_shape(shapeVectorList):
 def get_dot_difference(parameterMatrixList):
     userEmbeddingMatrix, itemPositiveEmbeddingMatrix, itemNegativeEmbeddingMatrix = parameterMatrixList
     return tf.keras.backend.batch_dot(userEmbeddingMatrix, itemPositiveEmbeddingMatrix, axes=1) - tf.keras.backend.batch_dot(userEmbeddingMatrix, itemNegativeEmbeddingMatrix, axes=1)
+
+def get_correlation_loss(y_true, y_pred):
+    x = y_true
+    y = y_pred
+    mx = tf.keras.backend.mean(x)
+    my = tf.keras.backend.mean(y)
+    xm, ym = x-mx, y-my
+    r_num = tf.keras.backend.sum(tf.multiply(xm,ym))
+    r_den = tf.keras.backend.sqrt(tf.multiply(tf.keras.backend.sum(tf.keras.backend.square(xm)), tf.keras.backend.sum(tf.keras.backend.square(ym))))
+    r = r_num / tf.where(tf.equal(r_den, 0), 1e-3, r_den)
+    r = tf.keras.backend.abs(tf.keras.backend.maximum(tf.keras.backend.minimum(r, 1.0), -1.0))
+    return tf.keras.backend.square(r)

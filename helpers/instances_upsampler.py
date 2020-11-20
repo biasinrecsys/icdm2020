@@ -25,8 +25,8 @@ def fake(interactions, column, items, target=0.0):
     umapping = {index:list(set(items)-set(group['item_id'].values)) for index, group in interactions.groupby(by='user_id')}
     new_fake_interactions = []
     for i, u in enumerate(np.random.choice(np.unique(interactions['user_id'].values), no_required_minority_interactions)):
-        if (i+1) % 1000 == 0:
-            print('\rcomputing', i, 'of', no_required_minority_interactions, end='')
+        if (i+1) % 100000 == 0:
+            print('\rcomputing', i+1, 'of', no_required_minority_interactions, end='')
         new_item = np.random.choice(umapping[int(u)])
         new_fake_interactions.append([int(u), new_item])
         umapping[int(u)].remove(new_item)
